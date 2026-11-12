@@ -1,0 +1,2 @@
+{"name":"endless-jumper-server","version":"1.0.0","private":true,"main":"server.js","scripts":{"start":"node server.js"},
+"dependencies":{"argon2":"^0.40.3","better-sqlite3":"^11.3.0","express":"^4.19.2"}}
