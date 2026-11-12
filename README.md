@@ -6,15 +6,15 @@
 3. Apri `http://localhost:3000` (il server serve anche il gioco, utile per testare). Da telefono sulla stessa Wi-Fi il backend resta solo su localhost: per provare dal telefono usa il tunnel (punto 3).
 
 ## 2. Pubblicare il frontend su GitHub Pages
-1. In questo repo il frontend statico è già stato preparato in `/docs`.
-2. Settings → Pages → Deploy from branch → `main` (oppure `master`) → `/docs`.
-3. Il gioco sarà su `https://TUONOME.github.io/REPO/`.
-4. Se preferisci usare la cartella radice, puoi anche copiare i file di `web/` direttamente in root del repo, ma per il deploy rapido questa repo usa `/docs`.
+1. Modifica i file in `web/` e, dalla cartella del progetto, esegui `.\publish-web.ps1`.
+2. Lo script pubblica su `main` solo il contenuto di `web/`; il backend e gli altri file locali restano fuori dal branch Pages.
+3. In GitHub: Settings → Pages → Deploy from branch → `main` → `/(root)`.
+4. Il gioco sarà su `https://TUONOME.github.io/REPO/`. Non fare `git push` dal branch locale `master`, che contiene anche il backend.
 
 ## 3. Backend con Cloudflare Tunnel
 1. Installa `cloudflared` (`winget install Cloudflare.cloudflared`).
 2. Avvia il server (`start-server.bat`), poi `start-tunnel.bat`: compare un URL `https://xxxx.trycloudflare.com`.
-3. Metti l'URL in `web/config.js` → `API:"https://xxxx.trycloudflare.com"` e fai commit su GitHub (con il Quick Tunnel l'URL cambia a ogni riavvio).
+3. Metti l'URL in `web/config.js` → `API:"https://xxxx.trycloudflare.com"` e poi esegui `.\publish-web.ps1` (con il Quick Tunnel l'URL cambia a ogni riavvio).
 4. Consigliato: avvia il server con `set ALLOWED_ORIGIN=https://TUONOME.github.io` per accettare richieste solo dal tuo sito.
 5. Tunnel permanente: `cloudflared tunnel login`, `cloudflared tunnel create jumper`, `cloudflared tunnel route dns jumper api.tuodominio.it`, poi `cloudflared tunnel run --url http://localhost:3000 jumper`.
 
