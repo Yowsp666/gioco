@@ -6,9 +6,10 @@
 3. Apri `http://localhost:3000` (il server serve anche il gioco, utile per testare). Da telefono sulla stessa Wi-Fi il backend resta solo su localhost: per provare dal telefono usa il tunnel (punto 3).
 
 ## 2. Pubblicare il frontend su GitHub Pages
-1. Crea un repository, carica **solo il contenuto della cartella `web/`** nella radice (o in `/docs`).
-2. Settings → Pages → Deploy from branch → `main` → `/ (root)`.
+1. In questo repo il frontend statico è già stato preparato in `/docs`.
+2. Settings → Pages → Deploy from branch → `main` (oppure `master`) → `/docs`.
 3. Il gioco sarà su `https://TUONOME.github.io/REPO/`.
+4. Se preferisci usare la cartella radice, puoi anche copiare i file di `web/` direttamente in root del repo, ma per il deploy rapido questa repo usa `/docs`.
 
 ## 3. Backend con Cloudflare Tunnel
 1. Installa `cloudflared` (`winget install Cloudflare.cloudflared`).
