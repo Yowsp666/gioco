@@ -1,7 +1,0 @@
-node_modules/
-server/node_modules/
-server/data.db
-server/data.db-shm
-server/data.db-wal
-*.log
-.DS_Store

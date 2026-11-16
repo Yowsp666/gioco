@@ -1,0 +1,107 @@
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+html,body{margin:0;width:100%;height:100%;position:fixed;overflow:hidden;overscroll-behavior:none;background:#0b1020;color:#fff;font:600 17px/1.3 system-ui,-apple-system,sans-serif}
+body{height:100dvh}
+#cv{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);height:100dvh;display:block;touch-action:none}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
+ padding:calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px);background:rgba(11,16,32,.93)}
+.screen.on{display:flex}h1{margin:0;font-size:32px}p{margin:0}
+button{min-height:56px;min-width:min(280px,80vw);border:0;border-radius:18px;font:800 20px system-ui;color:#0b1020;background:#4ade80;box-shadow:0 5px 0 #15803d;transition:transform .08s}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 #15803d}
+button.sec{background:#38bdf8;box-shadow:0 5px 0 #0369a1}button.ghost{background:#334155;color:#fff;box-shadow:0 5px 0 #1e293b}
+button.big{min-height:76px;font-size:30px}div.big{font-size:44px;font-weight:900}
+input{width:min(280px,80vw);min-height:52px;border-radius:14px;border:2px solid #334155;background:#111a33;color:#fff;font-size:18px;padding:0 14px;-webkit-user-select:text;user-select:text}
+.err{color:#fda4af;min-height:1.3em}.note{font-size:13px;opacity:.7;max-width:280px}
+#hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;padding:calc(env(safe-area-inset-top) + 8px) 14px 0;pointer-events:none;font-size:30px;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.4);line-height:1.1}
+#hud small{font-size:14px;opacity:.8}#hud button{pointer-events:auto;min-width:48px;width:48px;min-height:48px;padding:0;font-size:15px;border-radius:14px;opacity:.8;background:#334155;color:#fff;box-shadow:none}
+.hide{display:none!important}.tabs{display:flex;gap:6px}.tabs button{min-width:0;min-height:44px;padding:0 12px;font-size:15px;box-shadow:none}
+#board{justify-content:flex-start}#lb,#pst{list-style:none;margin:0;padding:0;width:100%;max-width:420px;overflow-y:auto;flex:1;touch-action:pan-y}#pst{flex:none}
+#lb li,#pst li{display:flex;gap:10px;padding:10px 12px;border-radius:12px;background:#111a33;margin-bottom:6px;text-align:left}#lb li.me{background:#166534}
+#lb b{width:48px}#lb span,#pst span{flex:1}
+#rot{display:none}@media(orientation:landscape) and (max-height:500px){#rot{display:flex;position:fixed;inset:0;z-index:9;background:#0b1020;align-items:center;justify-content:center;font-size:22px}}
+
+.brand{display:flex;flex-direction:column;line-height:1;font-size:58px;font-weight:900;letter-spacing:-1px;text-shadow:0 4px 0 #1e3a8a}
+.brand small{font-size:14px;letter-spacing:5px;color:#93c5fd;margin-bottom:6px}.brand em{font-style:normal;font-size:23px;letter-spacing:2px;color:#facc15;margin-top:6px}
+.tick{position:absolute;left:0;right:0;top:env(safe-area-inset-top);overflow:hidden;white-space:nowrap;background:#facc15;color:#0b1020;font-weight:900;font-size:15px;padding:9px 0}
+.tick.rev{top:auto;bottom:env(safe-area-inset-bottom);background:#2563eb;color:#fff}
+.tr{display:inline-flex;animation:mq 22s linear infinite}.rev .tr{animation-direction:reverse}@keyframes mq{to{transform:translateX(-50%)}}
+button.hot{background:#facc15;box-shadow:0 5px 0 #a16207;animation:pulse 1.4s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.05)}}
+button.small{min-height:40px;font-size:14px;box-shadow:none}.bounce,#shirt{animation:bn 1.4s ease-in-out infinite alternate}@keyframes bn{to{transform:translateY(-10px)}}
+#home{padding-top:calc(env(safe-area-inset-top) + 56px);padding-bottom:calc(env(safe-area-inset-bottom) + 56px);gap:10px}
+#login{padding-top:calc(env(safe-area-inset-top) + 56px)}
+.scroll{justify-content:flex-start;overflow-y:auto;touch-action:pan-y;padding-bottom:calc(env(safe-area-inset-bottom) + 24px)}
+.card{width:100%;max-width:420px;background:#111a33;border-radius:16px;padding:12px 16px;text-align:left;flex:none}.card h3{margin:0 0 6px;color:#facc15}
+.card ul{margin:0;padding-left:18px;font-size:15px;font-weight:500}.pill{background:#166534;border-radius:99px;padding:8px 16px;flex:none}
+#shirt{width:min(210px,58vw);flex:none}.vote{color:#facc15;font-weight:800;flex:none}.scroll button{flex:none}
+@media(prefers-reduced-motion:reduce){.tr,.bounce,#shirt,button.hot{animation:none}}
+
+/* Pulsanti: feedback touch+mouse. Causa del bug mobile: su iOS :active non scatta senza listener touch, l'animazione "pulse" di .hot
+   sovrascriveva transform e solo transform era in transition. Ora la classe .pressed (Pointer Events) e :active sono equivalenti. */
+button{--sh:#15803d;box-shadow:0 5px 0 var(--sh);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,filter .15s;-webkit-touch-callout:none;will-change:transform}
+button.sec{--sh:#0369a1}button.ghost{--sh:#1e293b}button.hot{--sh:#a16207}button.small{box-shadow:0 4px 0 var(--sh)}
+button:active,button.pressed{transform:translateY(3px) scale(.95);box-shadow:0 2px 0 var(--sh);filter:brightness(.88);transition-duration:.06s;animation:none}
+#hud button{box-shadow:none}#hud button:active,#hud button.pressed{transform:scale(.88);box-shadow:none}
+@media(hover:hover){button:hover:not(.pressed):not(:active){filter:brightness(1.08)}}
+.g{width:min(220px,60vw)}.g svg{display:block;width:100%}.gb,.gf{fill:none;stroke-width:12;stroke-linecap:round}.gb{stroke:#1e293b}.gf{stroke-dasharray:0 100;stroke:#334155}
+.gn{font:900 30px system-ui;fill:#fff}.gs{font:800 13px system-ui;fill:#94a3b8}.big-g{width:min(280px,78vw)}.big-g .gn{font-size:34px}
+.hrow{display:flex;gap:22px;align-items:flex-end;justify-content:center}.rec{display:flex;flex-direction:column;align-items:center;gap:2px}.rec small{font-size:12px;letter-spacing:2px;color:#93c5fd}
+.rec b{font-size:42px;line-height:1.1}.hrow .g{width:116px}.center{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.gap{max-width:420px;background:#7c2d12;border-radius:16px;padding:12px 16px;font-size:17px;border:2px solid #fb923c;flex:none}
+.row{display:flex;gap:10px}.row button{min-width:0;flex:1}.note2{font-size:14px;font-weight:500;text-align:left;margin-top:8px}details summary{cursor:pointer;font-size:14px;color:#93c5fd;padding:6px}
+#osh{display:flex;flex-direction:column;align-items:center;gap:10px;flex:none}#ost{font-size:15px}#ost b{color:#facc15}
+.gc{font-style:normal;font-size:13px;padding:2px 8px;border-radius:99px;color:#0b1020;font-weight:900;align-self:center}
+#prof .card input{margin:6px 0;width:100%}
+/* ---- v3: layout mobile (scroll sempre possibile, striscia fissa gialla in basso, Game Over ridisegnato) ---- */
+:root{--bh:clamp(46px,7dvh,54px)}
+.screen{justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.screen::before,.screen::after{content:'';margin:auto}
+.tick{position:fixed;left:0;right:0;top:auto;bottom:0;z-index:5;background:#facc15;color:#0b1020;padding:9px 0 calc(9px + env(safe-area-inset-bottom))}
+#home,#login{gap:10px;padding-top:calc(env(safe-area-inset-top) + 14px);padding-bottom:calc(env(safe-area-inset-bottom) + 58px)}
+#home img{width:auto;height:min(84px,9dvh)}.brand{font-size:min(58px,7.4dvh,15vw)}
+#home button{min-height:var(--bh);font-size:18px}#home button.big{min-height:calc(var(--bh)*1.35);font-size:28px}#home button.small{min-height:40px;font-size:14px}
+.hrow{gap:26px;align-items:flex-start}.rec b{font-size:40px;line-height:44px;height:44px}.hrow .g{width:74px}.hrow .gn{font-size:40px}
+#over::before,#over::after{display:none}#over{gap:0;padding:calc(env(safe-area-inset-top) + 8px) 18px calc(env(safe-area-inset-bottom) + 16px)}
+#over .sp{flex:0 1 auto;min-height:0}#over .sp.t{flex-basis:34dvh}#over .sp.m{flex-basis:5dvh}#over .sp.b{flex:1 1 0;min-height:12px}
+.go{margin:0;font-size:clamp(34px,10vw,46px);font-weight:900;letter-spacing:2px;color:#ef4444;text-shadow:0 3px 0 #7f1d1d}
+.srow{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:6px}.sc2{font-size:clamp(52px,16vw,68px);font-weight:900;line-height:1}
+.pg{position:relative;display:flex;align-items:center}.pg .g{width:96px}.pg .gn{font-size:38px}
+.pg small{position:absolute;top:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;letter-spacing:1.5px;color:#93c5fd}
+.rec2{margin:14px 0 0;font-size:15px}.omsg{margin:2px 0 0;font-size:14px;color:#facc15;min-height:1.2em}
+.gap2{margin:2px 0 0;font-size:13px;font-weight:500;opacity:.85;max-width:320px;min-height:2.6em}.inv{visibility:hidden}
+.btns{display:flex;flex-direction:column;align-items:center;gap:10px}#bagain{min-height:max(54px,8dvh)}
+#osh{width:100%;display:flex;justify-content:center;flex:none}#bshare{min-width:min(320px,90vw);min-height:58px;font-size:18px}
+/* ---- v4: Game Over a 3 livelli: (1) numeri chiave in una card, (2) chip record/posizione, (3) commento in fumetto ---- */
+#over .sp.t{flex-basis:13dvh}#over .sp.m{flex-basis:4dvh}
+.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;width:min(340px,92vw);margin-top:10px;padding:14px 8px 10px;background:rgba(17,26,51,.75);border-radius:20px}
+.hero::after{content:'';position:absolute;left:50%;top:16px;bottom:16px;width:1px;background:#334155}
+.hc{display:flex;flex-direction:column;align-items:center;gap:6px}.hv{height:64px;display:flex;align-items:center;justify-content:center}
+.lb{font-size:11px;letter-spacing:1.5px;font-weight:800;color:#93c5fd}.lb.gold{color:#facc15}.hv .g{width:100px}.hv .gn{font-size:38px}
+.chips{display:flex;gap:8px;margin-top:14px}.chip{padding:6px 14px;border:1px solid #334155;border-radius:99px;background:#111a33;font-size:14px;font-weight:600}.chip b{font-size:15px}
+.omsg{margin:8px 0 0;font-size:14px;color:#fda4af}.omsg:empty{display:none}
+.say{box-sizing:border-box;width:min(340px,92vw);min-height:4.1em;margin:14px 0 0;padding:10px 14px;border-left:4px solid #fb923c;border-radius:12px;background:#111a33;font-size:14px;font-weight:500;line-height:1.35;text-align:left}
+.row2{display:flex;gap:10px;width:min(280px,80vw)}.row2 button{min-width:0;flex:1;padding:0 6px;font-size:13px}
+
+/* ---- v5: sfondo animato dei menu (gradiente blu + sfere scure che salgono lente; solo transform = leggero, si ferma in partita) ---- */
+.screen{z-index:1}#hud{z-index:2}
+#bg{position:fixed;inset:0;z-index:0;display:none;overflow:hidden;background:radial-gradient(120% 70% at 50% 0%,#15337f 0%,#0b1a45 45%,#050a1f 100%)}
+body.menu #bg{display:block}body.menu .screen{background:transparent}
+#bg i{position:absolute;left:var(--x);top:100%;width:var(--s);height:var(--s);margin-left:calc(var(--s) / -2);border-radius:50%;will-change:transform;
+ background:radial-gradient(circle at 32% 28%,rgba(10,26,70,.55) 0%,rgba(3,8,26,.85) 60%,rgba(2,5,18,.95) 100%);box-shadow:inset 0 0 calc(var(--s) * .16) rgba(70,120,230,.2);
+ animation:rise var(--d) linear infinite}
+@keyframes rise{from{transform:translate3d(0,0,0)}to{transform:translate3d(var(--dx),calc(-100vh - var(--s) - 40px),0)}}
+@media(prefers-reduced-motion:reduce){#bg i{animation:none;transform:translate3d(0,calc(var(--y) * -1vh),0)}}
+
+/* ---- v6: toast zona, debug ---- */
+.hb{display:flex;gap:8px}
+#toast{position:fixed;z-index:3;top:calc(env(safe-area-inset-top) + 76px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:99px;background:rgba(11,16,32,.75);border:1px solid rgba(255,255,255,.25);font-weight:900;letter-spacing:2px;font-size:15px;white-space:nowrap;opacity:0;pointer-events:none}
+#toast.on{animation:toast 2.2s ease both}@keyframes toast{0%{opacity:0;transform:translate(-50%,-10px)}12%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+#dbgb{display:none;position:fixed;z-index:6;top:calc(env(safe-area-inset-top) + 6px);left:8px;min-width:0;min-height:30px;padding:0 10px;font-size:12px;background:#dc2626;color:#fff;--sh:#7f1d1d}
+body.isdebug.menu #dbgb{display:block}
+.dbg{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(340px,92vw)}.dbg small{color:#fca5a5;font-weight:800}
+.dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}.dgrid button{min-width:0;min-height:40px;font-size:12px;padding:0 2px}
+@media(prefers-reduced-motion:reduce){#toast.on{animation:none;opacity:1}}
+
+#pu{font-size:20px;font-weight:900}
+
+/* ---- v7: crediti (discreti, solo nei menu) ---- */
+#credit{display:none;position:fixed;z-index:6;top:calc(env(safe-area-inset-top) + 8px);right:10px;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:99px;background:rgba(11,16,32,.5);color:#cbd5e1;font-size:11px;font-weight:700;text-decoration:none;opacity:.8}
+#credit:active{opacity:1;transform:scale(.95)}body.menu #credit{display:flex}
