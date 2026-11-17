@@ -37,7 +37,7 @@
       this.crystals = Array.from({ length: 6 }, (_, i) => ({ x: (i * 97 + 30) % W, y: i * 151, k: .25 + (i % 3) * .1, s: 9 + (i % 3) * 5, r: i }));
       this.dust = Array.from({ length: 46 }, (_, i) => ({ x: (i * 71) % W, y: (i * 137) % 900, k: .12 + (i % 5) * .07, s: 1 + (i % 3) * .7, h: (i * 47) % 360, p: i }));
       this.meteors = Array.from({ length: 7 }, () => ({ l: 0, x: 0, y: 0, vx: 0, vy: 0, len: 0, h: 0 }));
-      this.mg = 0; this.nb = 0; this.lv = 0; this.mt = 1; this.avg = .016; this.fxq = 1; this.rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.mg = 0; this.nb = 0; this.lv = 0; this.mt = 1; this.avg = .016; this.fxq = 1; this.fq = 1; this.rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       this.spr = {}; for (const n of ['platform', 'platform_move', 'platform_vanish', 'platform_break', 'spring', 'spike', 'enemy', 'blackhole']) {
         const im = new Image(); // sprite opzionali: assets/sprites/<nome>.png
         im.onload = () => { this.spr[n] = im }; im.src = (window.CONFIG.SPRITE_DIR || 'assets/sprites/') + n + '.png'
@@ -213,6 +213,7 @@
       c.fillStyle = '#000'; c.beginPath(); c.arc(0, 0, 14, 0, 6.3); c.fill(); c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 1.5; c.stroke(); c.restore();
     }
     fxUpdate(dt) { // intensità della Nebulosa, ritmo della musica, stelle cadenti
+      this.fq += ((this.fxq ? 1 : 0) - this.fq) * Math.min(1, dt * 2); // qualità effetti: transizione morbida (~0,5 s), mai di scatto
       const alt = Math.max(0, -this.cam), M = (window.CONFIG.MUSIC2_AT || 2900) * 10, F = window.CONFIG.MUSIC_FADE || 5;
       this.nb = clamp((alt - 22000) / 2500, 0, 1);
       if (-this.top >= M) this.mg = Math.min(1, this.mg + dt / F); // "climax": parte insieme alla musica 2, stessa durata della dissolvenza
@@ -232,19 +233,20 @@
       const c = this.cx, T = this.rm ? 0 : this.t, mg = this.mg, lv = this.lv, hue = (T * 7) % 360;
       c.save(); c.globalCompositeOperation = 'lighter';
       for (const [x, y, r, hs] of [[W * .25, .22, 300, 0], [W * .8, .55, 330, 70]]) { // pulsano col basso della musica
-        const yy = (((y * H - cam * .03) % (H + 500)) + H + 500) % (H + 500) - 250, hh = (hue + hs + 260) % 360, g = c.createRadialGradient(x, yy, 0, x, yy, r);
+        const yy = (((y * H - cam * .03) % (H + 760)) + H + 760) % (H + 760) - 380, hh = (hue + hs + 260) % 360, g = c.createRadialGradient(x, yy, 0, x, yy, r);
         g.addColorStop(0, `hsla(${hh},90%,60%,${(.1 + .14 * mg + .22 * lv) * nb})`); g.addColorStop(1, `hsla(${hh},90%,60%,0)`); c.fillStyle = g; c.fillRect(0, 0, W, H)
       }
-      for (let r = 0; r < (this.fxq ? 3 : 1); r++) { // aurora: nastri ondulati
-        const base = H * (.18 + .2 * r) - ((cam * .04) % 60), th = 46 + 26 * mg, col = ['52,211,153', '34,211,238', '192,132,252'][r], a = (.2 + .22 * mg + .25 * lv) * nb, up = [], lo = [];
+      for (let r = 0; r < 3; r++) { // aurora: nastri ondulati (i nastri 2 e 3 sfumano se il telefono è lento)
+        if (r && this.fq < .02) continue;
+        const Mr = H + 300, base = (((H * (.18 + .2 * r) - cam * .04) % Mr) + Mr) % Mr - 150, th = 46 + 26 * mg, col = ['52,211,153', '34,211,238', '192,132,252'][r], a = (.2 + .22 * mg + .25 * lv) * nb * (r ? this.fq : 1), up = [], lo = [];
         for (let x = -10; x <= W + 10; x += 20) { const y = base + Math.sin(x * .02 + T * (.45 + r * .15) + r * 2) * 26 + Math.sin(x * .007 - T * .3) * 16; up.push([x, y]); lo.push([x, y + th * (.7 + .3 * Math.sin(x * .03 + T + r))]) }
         const g = c.createLinearGradient(0, base - 40, 0, base + th + 40); g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(.5, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`);
         c.fillStyle = g; c.beginPath(); up.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); for (let i = lo.length - 1; i >= 0; i--) c.lineTo(lo[i][0], lo[i][1]); c.closePath(); c.fill()
       }
-      if (this.fxq) { // galassia a spirale che ruota piano
+      if (this.fq > .02) { // galassia a spirale che ruota piano
         const cx = W * .74, cy = (((H * .3 - cam * .04) % (H + 300)) + H + 300) % (H + 300) - 150, rot = T * .12;
-        for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 56; i++) { const an = i * .24 + arm * Math.PI + rot, rr = 5 + i * 2.7, d = i % 4 ? 1 : 2.2; c.globalAlpha = (1 - i / 56) * .55 * nb * (.5 + .5 * mg + .3 * lv); c.fillStyle = i % 3 ? '#c7d2fe' : '#f0abfc'; c.fillRect(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr * .42, d, d) }
-        c.globalAlpha = 1; const g = c.createRadialGradient(cx, cy, 0, cx, cy, 26); g.addColorStop(0, `rgba(255,240,255,${.5 * nb})`); g.addColorStop(1, 'rgba(255,240,255,0)'); c.fillStyle = g; c.fillRect(cx - 30, cy - 30, 60, 60)
+        for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 56; i++) { const an = i * .24 + arm * Math.PI + rot, rr = 5 + i * 2.7, d = i % 4 ? 1 : 2.2; c.globalAlpha = (1 - i / 56) * .55 * nb * this.fq * (.5 + .5 * mg + .3 * lv); c.fillStyle = i % 3 ? '#c7d2fe' : '#f0abfc'; c.fillRect(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr * .42, d, d) }
+        c.globalAlpha = 1; const g = c.createRadialGradient(cx, cy, 0, cx, cy, 26); g.addColorStop(0, `rgba(255,240,255,${.5 * nb * this.fq})`); g.addColorStop(1, 'rgba(255,240,255,0)'); c.fillStyle = g; c.fillRect(cx - 30, cy - 30, 60, 60)
       }
       c.restore();
     }
@@ -258,9 +260,9 @@
         c.beginPath(); c.moveTo(0, -s); c.lineTo(s * .6, 0); c.lineTo(0, s); c.lineTo(-s * .6, 0); c.closePath(); c.fill();
         c.globalAlpha *= .8; c.fillStyle = '#fff'; c.beginPath(); c.moveTo(0, -s); c.lineTo(s * .2, 0); c.lineTo(0, s * .3); c.lineTo(-s * .2, 0); c.closePath(); c.fill(); c.restore()
       }
-      const nd = this.fxq ? 28 + Math.round(18 * mg) : 14; // polvere magica che sale, colori che cambiano
+      const nd = 28 + Math.round(18 * mg); // polvere magica che sale, colori che cambiano (le particelle extra sfumano se il telefono è lento)
       for (let i = 0; i < nd; i++) { const d = this.dust[i], y = (((d.y - cam * d.k - T * 10 * d.k) % M) + M) % M - 20, x = d.x + Math.sin(T * .6 + d.p) * 12;
-        c.globalAlpha = Math.max(0, (.45 + .55 * Math.sin(T * 3 + d.p)) * nb * (.6 + .4 * mg)); c.fillStyle = `hsl(${(d.h + T * 12) % 360},90%,76%)`; c.beginPath(); c.arc(x, y, d.s * (1 + lv * .7), 0, 6.3); c.fill() }
+        c.globalAlpha = Math.max(0, (.45 + .55 * Math.sin(T * 3 + d.p)) * nb * (.6 + .4 * mg) * (i < 14 ? 1 : this.fq)); c.fillStyle = `hsl(${(d.h + T * 12) % 360},90%,76%)`; c.beginPath(); c.arc(x, y, d.s * (1 + lv * .7), 0, 6.3); c.fill() }
       c.strokeStyle = '#fff'; c.lineWidth = 1; // scintille a 4 punte su alcune stelle
       for (let i = 0; i < 10; i++) { const s = this.stars[i], y = (((s.y - cam * .08) % (H + 20)) + H + 20) % (H + 20), L = 3 + 3 * Math.sin(T * 2 + i); c.globalAlpha = nb * .7 * (.5 + .5 * Math.sin(T * 2.3 + i * 1.7)); c.beginPath(); c.moveTo(s.x - L, y); c.lineTo(s.x + L, y); c.moveTo(s.x, y - L); c.lineTo(s.x, y + L); c.stroke() }
       for (const m of this.meteors) if (m.l > 0) { // stelle cadenti
@@ -301,7 +303,7 @@
     scenery(alt, cam, H) { // sfondo "dietro": nebulosa, pianeti, asteroidi, satelliti (parallasse e dissolvenza per quota)
       const c = this.cx, M = H + 200;
       const na = clamp((alt - 21500) / 3000, 0, 1);
-      if (na > .02) for (const [nx, ny, nr, col] of [[90, .3, 260, '168,85,247'], [320, .6, 300, '236,72,153'], [200, .85, 260, '34,211,238']]) { const yy = (((ny * H - cam * .05) % (H + 400)) + H + 400) % (H + 400) - 200, g = c.createRadialGradient(nx, yy, 0, nx, yy, nr); g.addColorStop(0, `rgba(${col},${.28 * na})`); g.addColorStop(1, `rgba(${col},0)`); c.fillStyle = g; c.fillRect(0, 0, W, H) }
+      if (na > .02) for (const [nx, ny, nr, col] of [[90, .3, 260, '168,85,247'], [320, .6, 300, '236,72,153'], [200, .85, 260, '34,211,238']]) { const yy = (((ny * H - cam * .05) % (H + 760)) + H + 760) % (H + 760) - 380, g = c.createRadialGradient(nx, yy, 0, nx, yy, nr); g.addColorStop(0, `rgba(${col},${.28 * na})`); g.addColorStop(1, `rgba(${col},0)`); c.fillStyle = g; c.fillRect(0, 0, W, H) }
       this.magicBack(alt, cam, H);
       for (const [b, ba, bx, br, k] of BODIES) { const al = clamp(1 - Math.abs(alt - ba) / 3600, 0, 1); if (al <= 0) continue; const y = H * .62 + (ba - alt) * k; if (y > -br * 1.8 && y < H + br * 1.8) this.planet(b, bx, y, br, b === 'earth' ? al * .8 : al) }
       const aa = clamp(Math.min((alt - 14500) / 1500, (20500 - alt) / 1500), 0, 1);

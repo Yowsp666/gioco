@@ -6,7 +6,8 @@ async function api(p,body){
   const r=await fetch(API+'/api/'+p,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(tok?{Authorization:'Bearer '+tok}:{})},body:body&&JSON.stringify(body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||'Errore'),{status:r.status});return j}
 const net=e=>e.status?e.message:'Server non raggiungibile';
-const show=id=>{document.body.classList.toggle('menu',['login','home','prize','board','prof'].includes(id));document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('on',e.id===id));$('#hud').classList.toggle('hide',!(id===''||id==='pause'))};
+const show=id=>{const tk=document.getElementById('ticker');if(tk)tk.hidden=!(id==='home'||id==='login'); // la striscia gialla è un elemento a sé: nascosta davvero (display:none) fuori da home e login
+  document.body.classList.toggle('menu',['login','home','prize','board','prof'].includes(id));document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('on',e.id===id));$('#hud').classList.toggle('hide',!(id===''||id==='pause'))};
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;e.textContent=x;return e};
 // seconda musica: preload a (soglia-400) punti, dissolvenza incrociata di MUSIC_FADE secondi alla soglia (config.js: MUSIC2_AT, MUSIC_FADE)
 const M2=C.MUSIC2_AT||2900,FADE=C.MUSIC_FADE||5;let m2=false;
